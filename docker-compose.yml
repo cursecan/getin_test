@@ -1,0 +1,31 @@
+version: '3'
+services:
+
+  server:
+    restart: always
+    image: nginx
+    volumes:
+    - ./conf:/etc/nginx/conf.d
+    links:
+    - api:api
+    ports:
+    - "80:80"
+
+  api:
+    build: .
+    expose:
+    - "5000"
+    command: gunicorn tejoks.wsgi -b 0.0.0.0:5000 --log-level=debug --log-file=-
+    depends_on:
+      - primary_db
+    volumes:
+      - .:/sourcecode
+
+
+  primary_db:
+    image: postgres:9.6
+    restart: always
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./pgdata:/var/lib/postgresql/9.6
